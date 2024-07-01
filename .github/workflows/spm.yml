@@ -42,6 +42,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
+    - name: Clone mock responses for Vertex AI unit tests
+      run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -74,6 +76,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: device${{ matrix.os }}${{ matrix.xcode }}
+    - name: Clone mock responses for Vertex AI unit tests
+      run: scripts/update_vertexai_responses.sh
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -88,15 +92,14 @@ jobs:
     strategy:
       matrix:
         # Full set of Firebase-Package tests only run on iOS. Run subset on other platforms.
+        # visionOS isn't buildable from here (even with Firestore source) because the test
+        # targets need Analytics.
         target: [tvOS, macOS, catalyst]
         os: [macos-13, macos-14]
         include:
           - os: macos-13
             xcode: Xcode_15.2
           - os: macos-14
-            xcode: Xcode_15.3
-          - os: macos-14
-            target: visionOS
             xcode: Xcode_15.3
     runs-on: ${{ matrix.os }}
     steps:
